@@ -20,7 +20,6 @@ class Plate(frame: Rectangle) {
         transform {
             translate(frame.center.x + 328.0, frame.center.y -120)
             scale(1.274, 0.95)
-
         }
     )
     val points = loader.thumbnails.take(150).mapIndexed { i, it ->
@@ -60,18 +59,19 @@ class Plate(frame: Rectangle) {
 
 
     fun draw(drawer: Drawer) {
-        //director.updateAnimation()
         drawer.clear(ColorRGBa.RED)
-//
-//        loader.videos.forEach { it.update(drawer) }
 
-        trianglesToThumbnails.forEach { (triangle, thumbnail) ->
-            //drawer.text(it.second.src.name, it.first)
+        fun drawTile(triangle: ShapeContour, thumbnail: Thumbnail) {
+
+            val points = (triangle.contour.equidistantPositions(20) zip circle.contour.equidistantPositions(20)).map {
+                it.first.mix(it.second, thumbnail.sizeFader)
+            }
+            val triangleContour = CatmullRomChain2(points, loop = true).toContour()
 
             drawer.fill = null
             drawer.stroke = ColorRGBa.WHITE.opacify(0.3)
             drawer.strokeWeight = 0.2
-            drawer.contour(triangle.contour)
+            drawer.contour(triangleContour)
 
 
             val contoursInTriangle = contours.filter { it.bounds.center.distanceTo(triangle.bounds.center) < 40.0 }
@@ -82,35 +82,43 @@ class Plate(frame: Rectangle) {
                 thumbnail.timer -= 1.0
             }
 
-            val normalized = thumbnail.timer / 200.0
+            val normalized = (thumbnail.timer / 200.0).coerceIn(0.0, 1.0)
+            val videoCb = loader.activeVideo?.video?.colorBuffer
 
             drawer.stroke = null
             drawer.fill = ColorRGBa.WHITE
             ssImageToShape.parameter("opacity", normalized)
             ssImageToShape.parameter("image", thumbnail.cb)
+            ssImageToShape.parameter("image2", videoCb ?: thumbnail.cb)
             drawer.shadeStyle = ssImageToShape
-            drawer.shape(triangle.shape)
+            drawer.shape(triangleContour.shape)
             drawer.shadeStyle = null
 
 
-            drawer.stroke = ColorRGBa.WHITE
+            drawer.stroke = if (thumbnail.isPlaying) ColorRGBa.BLUE else ColorRGBa.WHITE
             drawer.strokeWeight = 0.75
-            drawer.contour(triangle.contour.sub(0.0, normalized))
+            drawer.contour(triangleContour.sub(0.0, normalized))
 
+        }
 
-            drawer.stroke = ColorRGBa.BLUE
-            drawer.strokeWeight = 2.75
-            drawer.contour(triangle.contour.sub(0.0, thumbnail.videoTimer / 200.0))
+        val list = trianglesToThumbnails.entries.toMutableList()
+        val active = list.firstOrNull { it.value.isPlaying }
+        if(active != null) {
+            list.remove(active)
+            list.add(active)
+        }
 
-
+        list.forEach { (triangle, thumbnail) ->
+            //drawer.text(it.second.src.name, it.first)
+                drawTile(triangle, thumbnail)
 //            drawer.fill = ColorRGBa.WHITE
 //            drawer.text(thumbnail.timer.toString(), triangle.bounds.center)
         }
-//
-//        val playing = loader.thumbnails.firstOrNull { it.isPlaying }
-//        if (playing != null) {
-//            loader.thumbnails.minus(playing).forEach { it.isPlaying = false }
-//        }
+
+        if(active != null && active.value.isPlaying) {
+                active.value.info.updateAnimation()
+                active.value.info.draw(drawer)
+        }
 
         drawer.strokeWeight = 1.2
         drawer.stroke = ColorRGBa.YELLOW
@@ -148,7 +156,16 @@ val ssImageToShape = shadeStyle {
                         texCoord.y = 1.0 - texCoord.y;
                         vec2 size = textureSize(p_image, 0);
                         texCoord.x /= size.x / size.y;
-                        x_fill = texture(p_image, texCoord);
+                        vec4 t1 = texture(p_image, texCoord);
+                        
+                  
+                        vec2 texCoord2 = c_boundsPosition.xy;
+                        texCoord2.y = texCoord2.y;
+                        vec2 size2 = textureSize(p_image2, 0);
+                        texCoord2.x /= size2.x / size2.y;
+                        vec4 t2 = texture(p_image2, texCoord2);
+                        
+                        x_fill = mix(t1, t2, t2.a);
                         x_fill.a = p_opacity;
                     """
 }

@@ -89,7 +89,7 @@ fun Program.loadVideoSource(debug: Boolean = false, dry: Boolean = false, gui: B
 
 fun loadDefaultVideo(): VideoPlayerFFMPEG {
     return VideoPlayerFFMPEG.fromFile("offline-data/plate.mp4", PlayMode.VIDEO).apply {
-        seek(60.0)
+        seek(180.0)
         play()
         ended.listen {
             restart()

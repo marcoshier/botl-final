@@ -16,7 +16,7 @@ fun main() = application {
         val grid = drawer.bounds.grid(2, 2)
 
         //val dry = viewBox(grid[0][0]).apply { loadVideoSource( false, dry = true, true)  }
-        val masked = viewBox(grid[0][1]).apply { loadVideoSource( true, dry = false, false)  }
+        val masked = viewBox(grid[0][1]).apply { loadVideoSource( false, dry = false, false)  }
         val treated = viewBox(grid[1][0]).apply { wet(true) }
         //val videos = viewBox(grid[1][1]).apply { videosGrid() }
 

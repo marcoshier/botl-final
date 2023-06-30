@@ -41,7 +41,7 @@ fun Program.wet(gui: Boolean = false) {
         foreground = rgb(0.118, 0.529, 0.827, a = 1.0)
     }
     val colorcorr = ColorCorrection().addTo(g).apply {
-        brightness = 0.677
+        brightness = 0.78
         contrast = -0.031
         saturation = 1.0
         gamma = 1.522

@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "org.openrndr.template"
 version = "1.0.0"
 
-val applicationMainClass = "TemplateProgramKt"
+val applicationMainClass = "Final01Kt"
 
 /**  ## additional ORX features to be added to this project */
 val orxFeatures = setOf<String>(
@@ -53,7 +53,7 @@ val orxFeatures = setOf<String>(
 //  "orx-temporal-blur",
 //  "orx-tensorflow",    
 //  "orx-time-operators",
-//  "orx-timer",
+    "orx-timer",
     "orx-triangulation",
     "orx-video-profiles",
     "orx-view-box",

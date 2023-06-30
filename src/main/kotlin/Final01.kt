@@ -1,7 +1,9 @@
+import org.openrndr.animatable.Animatable
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.ColorBuffer
 import org.openrndr.draw.isolated
+import org.openrndr.events.Event
 import org.openrndr.extra.parameters.DoubleParameter
 import org.openrndr.extra.viewbox.viewBox
 import org.openrndr.math.IntVector2
@@ -15,7 +17,7 @@ fun main() = application {
             hideWindowDecorations = true
             hideCursor = true
             windowAlwaysOnTop = true
-            //position = IntVector2(1520 + ((1920 - 1080) / 2), 0)
+            position = IntVector2(1520 + ((1920 - 1080) / 2), 0)
         }
         width = 1920
         height = 1080
@@ -30,13 +32,8 @@ fun main() = application {
 
         val plate = Plate(drawer.bounds)
 
-        plate.loader.thumbnails.forEach {
-            it.playVideoEvent.listen {
-                println("now play $it")
-            }
-        }
-
         extend {
+            plate.loader.update(drawer)
 
             dry.update()
             treat(dry.result)
@@ -53,11 +50,10 @@ fun main() = application {
             drawer.circle(Vector2.ZERO, 1281.0)
 
 
-
-             drawer.isolated {
-                  drawer.defaults()
-                  video.draw()
-             }
+//             drawer.isolated {
+//                  drawer.defaults()
+//                  video.draw()
+//             }
         }
     }
 }

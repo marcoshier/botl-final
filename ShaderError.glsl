@@ -16,6 +16,7 @@
 
 uniform float p_opacity;
 uniform sampler2D p_image;
+uniform sampler2D p_image2;
 layout(origin_upper_left) in vec4 gl_FragCoord;
 // <drawer-uniforms(true, true)> (ShadeStyleGLSL.kt)
             
@@ -87,7 +88,16 @@ void main(void) {
                         texCoord.y = 1.0 - texCoord.y;
                         vec2 size = textureSize(p_image, 0);
                         texCoord.x /= size.x / size.y;
-                        x_fill = texture(p_image, texCoord)
+                        val t1 = texture(p_image, texCoord);
+                        
+                  
+                        vec2 texCoord2 = c_boundsPosition.xy;
+                        texCoord2.y = 1.0 - texCoord2.y;
+                        vec2 size2 = textureSize(p_image2, 0);
+                        texCoord2.x /= size2.x / size2.y;
+                        val t2 = texture(p_image2, texCoord2);
+                        
+                        x_fill = mix(t1, t2, t2.a);
                         x_fill.a = p_opacity;
                      }
 
@@ -104,8 +114,12 @@ void main(void) {
     o_color = final;
 }
 // -------------
-// shade-style-custom:expansion-1584915623
-// created 2023-06-22T01:42:57.222838500
+// shade-style-custom:expansion--1813604913
+// created 2023-06-30T00:22:23.093985200
 /*
-0(91) : error C0000: syntax error, unexpected identifier, expecting ',' or ';' at token "x_fill"
+0(91) : error C0000: syntax error, unexpected '=', expecting "::" at token "="
+0(98) : error C0000: syntax error, unexpected '=', expecting "::" at token "="
+0(100) : error C1503: undefined variable "t1"
+0(100) : error C1503: undefined variable "t2"
+0(100) : error C1503: undefined variable "t2"
 */
